@@ -18,7 +18,7 @@ It also looks up a SITE_URL constant to the user agent in the headers.
 Also has the option to also check that the URL returns content of 
 a specified type.}
     gem.email = "walter@katipo.co.nz"
-    gem.homepage = "http://github.com/walter/http_url_validation_improved"
+    gem.homepage = "http://github.com/kete/http_url_validation_improved"
     gem.authors = ["Erik Gregg", "Walter McGinnis", "Kieran Pilkington"]
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
