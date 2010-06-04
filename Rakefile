@@ -5,11 +5,21 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "http_url_validation_improved"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{a Rails gem that allows you to validate a URL 
+entered in a form}
+    gem.description = %Q{a Rails gem that allows you to validate a URL 
+entered in a form. It validates if the URL exists by hitting it with a HEAD 
+request.
+
+The improved version includes retries for common patterns when the head request is refused before giving a failure notice.
+
+It also looks up a SITE_URL constant to the user agent in the headers.
+
+Also has the option to also check that the URL returns content of 
+a specified type.}
     gem.email = "walter@katipo.co.nz"
     gem.homepage = "http://github.com/walter/http_url_validation_improved"
-    gem.authors = ["Walter McGinnis"]
+    gem.authors = ["Erik Gregg", "Walter McGinnis", "Kieran Pilkington"]
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
