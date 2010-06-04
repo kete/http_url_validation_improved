@@ -1,0 +1,40 @@
+HTTP URL Validation Plugin Improved
+by Erik Gregg, Walter McGinnis, Kieran Pilkington
+
+This work is based on Erik's work, but mainly refined for the Kete application (http://kete.net.nz).
+
+Inspired by HTTP URL Validation Plugin by C. Carneiro Jr.
+========================
+
+HTTP URL Validation Improved is a Rails gem that allows you to validate a URL 
+entered in a form. It validates if the URL exists by hitting it with a HEAD 
+request.
+
+The improved version includes retries for common patterns when the head request is refused before giving a failure notice.
+
+It also looks up a SITE_URL constant to the user agent in the headers.
+
+There's also the option to also check that the URL returns content of 
+a specified type. Here’s how you can use it your model:
+
+Check for content type:
+  validates_http_url :url, :content_type => "text/html"
+
+Do not check for content type, just make sure the site is accessible:
+  validates_http_url :website
+
+Make sure there is a DNS entry for a domain
+  validates_http_domain :domain		
+# Domain must be in 'www.site.com' for or 'site.com' form.  No http://, no path.
+
+This example will make sure the value entered for the URL field points to a 
+publicly accessible HTML page, and the photo field points to an image:
+  validates_http_url :image_url, :content_type => "image"
+# :content_type checks for a matching substring, so any image will validate
+
+========================
+
+Bug reports and feedback are always welcome. 
+
+Please report them via http://github.com/kete/http_url_validation_improved
+
