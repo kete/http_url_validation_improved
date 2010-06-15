@@ -26,10 +26,24 @@ module ActiveRecord
             moved_retry ||= false
             not_allowed_retry ||= false
             retry_without_headers ||= false
-            # Check Formatting
-            raise if not value =~ /^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/ix
             response = nil
+
+            # resolve to url escaped version of URL
+            # TODO: at some point hopefully URI lib
+            # be updated to allow unicode values
+            # escape for now
+            value = URI.escape(value)
+
             url = URI.parse(value)
+
+            # Check Formatting
+            # moved to use the URI library's logic
+            # now allows ftp and other non-http(s) protocols
+            # must have a protocol specified
+            raise unless url.scheme
+            # must have a domain name specified
+            raise unless url.host
+
             url.path = "/" if url.path.length < 1
             http = Net::HTTP.new(url.host, (url.scheme == 'https') ? 443 : 80)
             if url.scheme == 'https'
@@ -44,7 +58,15 @@ module ActiveRecord
                            http.request_get(url.path, headers) {|r|}
                          end
                        else
-                         http.request_head(url.path, headers)
+                         # we know that *.wikipedia.org don't like the headers
+                         # and will treat 3 requests to get to the point
+                         # where we normally try without headers as DoS
+                         # if not wikipedia, try with headers
+                         if value.include?('wikipedia.org')
+                           http.request_head(url.path)
+                         else
+                           http.request_head(url.path, headers)
+                         end
                        end
             # response = not_allowed_retry ? http.request_get(url.path) {|r|} : http.request_head(url.path)
             # Comment out as you need to
