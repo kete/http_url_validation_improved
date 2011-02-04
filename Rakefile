@@ -20,6 +20,7 @@ a specified type.}
     gem.email = "walter@katipo.co.nz"
     gem.homepage = "http://github.com/kete/http_url_validation_improved"
     gem.authors = ["Erik Gregg", "Walter McGinnis", "Kieran Pilkington"]
+    gem.add_dependency "addressable"
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end

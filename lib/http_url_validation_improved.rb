@@ -1,5 +1,5 @@
 require 'net/http'
-require 'uri'
+require 'addressable/uri'
 require 'socket'
 
 module ActiveRecord
@@ -26,15 +26,20 @@ module ActiveRecord
             moved_retry ||= false
             not_allowed_retry ||= false
             retry_without_headers ||= false
+            # some domains will block requests that come in more frequently than 1 per second
+            sleepy_domains = ['wikipedia.org']
+            sleep_interval = 2 # 2 to be on the safe side
+            must_sleep ||= false
             response = nil
 
             # resolve to url escaped version of URL
-            # TODO: at some point hopefully URI lib
-            # be updated to allow unicode values
-            # escape for now
-            value = URI.escape(value)
+            # value = URI.escape(value)
+            # updated to allow unicode values
+            # escaping shouldn't be necessary
+            must_sleep = sleepy_domains.select { |d| value.include?(d) }.size > 0
 
-            url = URI.parse(value)
+
+            url = Addressable::URI.parse(value)
 
             # Check Formatting
             # moved to use the URI library's logic
@@ -50,23 +55,17 @@ module ActiveRecord
               http.use_ssl = true
               http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             end
-            headers = Object.const_defined?('SITE_URL') ? { "User-Agent" => "#{SITE_URL} link checking mechanism via Ruby Net/HTTP" } : { "User-Agent" => "Ruby Net/HTTp used for link checking mechanism" }
+            headers = Object.const_defined?('SITE_URL') ? { "User-Agent" => "#{SITE_URL} link checking mechanism (http://github.com/kete/http_url_validation_improved) via Ruby Net/HTTP" } : { "User-Agent" => "Ruby Net/HTTp used for link checking mechanism (http://github.com/kete/http_url_validation_improved)" }
             response = if not_allowed_retry
+                         sleep sleep_interval if must_sleep
+
                          if retry_without_headers
                            http.request_get(url.path) {|r|}
                          else
                            http.request_get(url.path, headers) {|r|}
                          end
                        else
-                         # we know that *.wikipedia.org don't like the headers
-                         # and will treat 3 requests to get to the point
-                         # where we normally try without headers as DoS
-                         # if not wikipedia, try with headers
-                         if value.include?('wikipedia.org')
-                           http.request_head(url.path)
-                         else
-                           http.request_head(url.path, headers)
-                         end
+                         http.request_head(url.path, headers)
                        end
             # response = not_allowed_retry ? http.request_get(url.path) {|r|} : http.request_head(url.path)
             # Comment out as you need to
