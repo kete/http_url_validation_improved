@@ -78,7 +78,8 @@ module ActiveRecord
                              Net::HTTPPartialContent,
                              Net::HTTPFound,
                              Net::HTTPTemporaryRedirect,
-                             Net::HTTPSeeOther
+                             Net::HTTPSeeOther,
+                             Timeout::Error
                             ]
             # If response is not allowed, raise an error
             raise unless allowed_codes.include?(response.class)
@@ -86,6 +87,8 @@ module ActiveRecord
             unless configuration[:content_type].nil?
               record.errors.add(attr_name, configuration[:message_wrong_content]) if response['content-type'].index(configuration[:content_type]).nil?
             end
+          rescue Timeout::Error
+            record.errors.add(attr_name, configuration[:message_not_accessible] + ". The website took too long to respond." )
           rescue
             # Has the page moved?
             if response.is_a?(Net::HTTPMovedPermanently)
